@@ -36,6 +36,7 @@ void sycSSL_CTX_set_verify(SSL_CTX *ctx, int mode,
 int sycSSL_CTX_set_tmp_dh(SSL_CTX *ctx, DH *dh);
 int sycSSL_CTX_set_cipher_list(SSL_CTX *ctx, const char *str);
 int sycSSL_set_cipher_list(SSL *ssl, const char *str);
+int sycSSL_set_tlsext_host_name(SSL *ssl, const char *str);
 long sycSSL_get_verify_result(SSL *ssl);
 int sycSSL_set_fd(SSL *ssl, int fd);
 int sycSSL_connect(SSL *ssl);

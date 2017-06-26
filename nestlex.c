@@ -8,6 +8,7 @@
 #include "mytypes.h"
 
 #include "sysincludes.h"
+#include <stddef.h>
 
 static int _nestlex(const char **addr,
 		    char **token,

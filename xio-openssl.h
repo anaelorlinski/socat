@@ -30,14 +30,14 @@ extern const struct optdesc opt_openssl_compress;
 extern const struct optdesc opt_openssl_fips;
 #endif
 extern const struct optdesc opt_openssl_commonname;
-
+extern const struct optdesc opt_openssl_sni;
 extern int
    _xioopen_openssl_prepare(struct opt *opts, struct single *xfd,
 			    bool server, bool *opt_ver, const char *opt_cert,
 			    SSL_CTX **ctx);
 extern int
    _xioopen_openssl_connect(struct single *xfd,  bool opt_ver,
-			    const char *opt_commonname,
+			    const char *opt_commonname, const char *opt_sni,
 			    SSL_CTX *ctx, int level);
 extern int
    _xioopen_openssl_listen(struct single *xfd, bool opt_ver,

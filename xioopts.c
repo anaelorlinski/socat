@@ -1111,6 +1111,7 @@ const struct optname optionnames[] = {
 	IF_OPENSSL("openssl-key",	&opt_openssl_key)
 	IF_OPENSSL("openssl-method",	&opt_openssl_method)
 	IF_OPENSSL("openssl-pseudo",	&opt_openssl_pseudo)
+	IF_OPENSSL("openssl-sni",	&opt_openssl_sni)
 	IF_OPENSSL("openssl-verify",	&opt_openssl_verify)
 	IF_TERMIOS("opost",	&opt_opost)
 #if defined(HAVE_TERMIOS_ISPEED) && defined(OSPEED_OFFSET) && (OSPEED_OFFSET != -1)
@@ -1373,6 +1374,7 @@ const struct optname optionnames[] = {
 #ifdef SO_SNDLOWAT
 	IF_SOCKET ("sndlowat",	&opt_so_sndlowat)
 #endif
+    IF_OPENSSL("sni",	&opt_openssl_sni)
 #ifdef SO_ACCEPTCONN /* AIX433 */
 	IF_SOCKET ("so-acceptconn",	&opt_so_acceptconn)
 #endif /* SO_ACCEPTCONN */

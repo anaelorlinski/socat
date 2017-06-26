@@ -482,6 +482,7 @@ enum e_optcode {
    OPT_OPENSSL_FIPS,
    OPT_OPENSSL_KEY,
    OPT_OPENSSL_METHOD,
+   OPT_OPENSSL_SNI,
    OPT_OPENSSL_PSEUDO,
    OPT_OPENSSL_VERIFY,
    OPT_OPOST,		/* termios.c_oflag */

@@ -53,6 +53,7 @@ static int openssl_handle_peer_certificate(struct single *xfd,
 					   bool opt_ver,
 					   int level);
 static int xioSSL_set_fd(struct single *xfd, int level);
+static int xioSSL_set_sni(struct single *xfd, const char *opt_sni);
 static int xioSSL_connect(struct single *xfd, const char *opt_commonname, bool opt_ver, int level);
 static int openssl_delete_cert_info(void);
 
@@ -117,7 +118,7 @@ const struct optdesc opt_openssl_compress    = { "openssl-compress",   "compress
 const struct optdesc opt_openssl_fips        = { "openssl-fips",       "fips",   OPT_OPENSSL_FIPS,        GROUP_OPENSSL, PH_SPEC, TYPE_BOOL,     OFUNC_SPEC };
 #endif
 const struct optdesc opt_openssl_commonname  = { "openssl-commonname", "cn",     OPT_OPENSSL_COMMONNAME,  GROUP_OPENSSL, PH_SPEC, TYPE_STRING,   OFUNC_SPEC };
-
+const struct optdesc opt_openssl_sni         = { "openssl-sni",        "sni",    OPT_OPENSSL_SNI,         GROUP_OPENSSL, PH_SPEC, TYPE_STRING,   OFUNC_SPEC };
 
 /* If FIPS is compiled in, we need to track if the user asked for FIPS mode.
  * On forks, the FIPS mode must be reset by a disable, then enable since
@@ -197,6 +198,7 @@ static int
    bool opt_ver = true;	/* verify peer certificate */
    char *opt_cert = NULL;	/* file name of client certificate */
    const char *opt_commonname = NULL;	/* for checking peer certificate */
+   const char *opt_sni = NULL; /* SNI hostname */
    int result;
 
    if (!(xioflags & XIO_MAYCONVERT)) {
@@ -226,6 +228,7 @@ static int
 
    retropt_string(opts, OPT_OPENSSL_CERTIFICATE, &opt_cert);
    retropt_string(opts, OPT_OPENSSL_COMMONNAME, (char **)&opt_commonname);
+   retropt_string(opts, OPT_OPENSSL_SNI, (char **)&opt_sni);
    
    if (opt_commonname == NULL) {
       opt_commonname = hostname;
@@ -289,7 +292,7 @@ static int
 	 return result;
       }
 
-      result = _xioopen_openssl_connect(xfd, opt_ver, opt_commonname, ctx, level);
+      result = _xioopen_openssl_connect(xfd, opt_ver, opt_commonname, opt_sni, ctx, level);
       switch (result) {
       case STAT_OK: break;
 #if WITH_RETRY
@@ -358,6 +361,7 @@ static int
 int _xioopen_openssl_connect(struct single *xfd,
 			     bool opt_ver,
 			     const char *opt_commonname,
+				 const char *opt_sni,
 			     SSL_CTX *ctx,
 			     int level) {
    SSL *ssl;
@@ -374,7 +378,15 @@ int _xioopen_openssl_connect(struct single *xfd,
       return STAT_RETRYLATER;
    }
    xfd->para.openssl.ssl = ssl;
-
+  
+   
+   result = xioSSL_set_sni(xfd, opt_sni);
+   if (result != STAT_OK) {
+      sycSSL_free(xfd->para.openssl.ssl);
+      xfd->para.openssl.ssl = NULL;
+      return result;
+   }
+   
    result = xioSSL_set_fd(xfd, level);
    if (result != STAT_OK) {
       sycSSL_free(xfd->para.openssl.ssl);
@@ -1507,6 +1519,24 @@ static int xioSSL_set_fd(struct single *xfd, int level) {
    return STAT_OK;
 }
 
+static int xioSSL_set_sni(struct single *xfd, const char *opt_sni) {
+    unsigned long err;
+
+   /* SSL_SNI handling */
+   if (opt_sni != NULL) {
+      if (sycSSL_set_tlsext_host_name(xfd->para.openssl.ssl, opt_sni) <= 0) {
+	    if (ERR_peek_error() == 0)
+	      Error1("SSL_set_tlsext_host_name(, \"%s\") failed", opt_sni);
+	    while (err = ERR_get_error()) {
+	      Error2("SSL_set_tlsext_host_name(, \"%s\"): %s",
+		   opt_sni, ERR_error_string(err, NULL));
+	    }
+	    return STAT_RETRYLATER;
+      }
+   }
+   return STAT_OK;
+
+}
 
 /* ...
    in case of an error condition, this function check forever and retry
