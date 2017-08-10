@@ -505,6 +505,7 @@ label(ADDRESS_OPENSSL_CONNECT)dit(bf(tt(OPENSSL:<host>:<port>)))
    certificate are supported.nl() 
    Option groups: link(FD)(GROUP_FD),link(SOCKET)(GROUP_SOCKET),link(IP4)(GROUP_IP4),link(IP6)(GROUP_IP6),link(TCP)(GROUP_TCP),link(OPENSSL)(GROUP_OPENSSL),link(RETRY)(GROUP_RETRY) nl()
    Useful options:
+   link(sni)(OPTION_OPENSSL_SNI),
    link(cipher)(OPTION_OPENSSL_CIPHERLIST),
    link(method)(OPTION_OPENSSL_METHOD),
    link(verify)(OPTION_OPENSSL_VERIFY),
@@ -2703,6 +2704,9 @@ label(OPTION_OPENSSL_FIPS)dit(bf(tt(fips)))
    This mode might require that the involved certificates are generated with a
    FIPS enabled version of openssl. Setting or clearing this option on one
    socat address affects all OpenSSL addresses of this process.
+label(OPTION_OPENSSL_SNI)dit(bf(tt(sni=<string>)))
+   Set Server Name Indication for connection to remote SSL server.
+   This is used to serve multiple HTTPS sites on the same IP:port.
 enddit()
 
 startdit()enddit()nl()
